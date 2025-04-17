@@ -1,8 +1,3 @@
 <resources>
     <string name="app_name">Simple Note</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
-    <string name="let_s_get_started">Let\'s Get Started</string>
-    <string name="first_title">Jot Down anything you want to achieve, today or in the future</string>
 </resources>
