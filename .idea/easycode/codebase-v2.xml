@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="com.obiscr.chatgpt.settings.EasyCodeState">
+    <option name="projectFiles" value="$PROJECT_DIR$/app/src/androidTest/java/com/example/simplenote/ExampleInstrumentedTest.kt;/home/fazel/Desktop/simple-note/app/src/main/java/com/example/simplenote/data/ApiClient.kt;/home/fazel/Desktop/simple-note/app/src/main/java/com/example/simplenote/data/ApiHandler.kt;/home/fazel/Desktop/simple-note/app/src/main/java/com/example/simplenote/data/ApiService.kt;/home/fazel/Desktop/simple-note/app/src/main/java/com/example/simplenote/data/TokenProvider.kt;/home/fazel/Desktop/simple-note/app/src/main/java/com/example/simplenote/ui/theme/Color.kt;/home/fazel/Desktop/simple-note/app/src/main/java/com/example/simplenote/ui/theme/Theme.kt;/home/fazel/Desktop/simple-note/app/src/main/java/com/example/simplenote/ui/theme/Type.kt;/home/fazel/Desktop/simple-note/app/src/main/java/com/example/simplenote/MainActivity.kt;/home/fazel/Desktop/simple-note/app/src/test/java/com/example/simplenote/ExampleUnitTest.kt;/home/fazel/Desktop/simple-note/app/build.gradle.kts;/home/fazel/Desktop/simple-note/build.gradle.kts;/home/fazel/Desktop/simple-note/settings.gradle.kts" />
+  </component>
+</project>
