@@ -36,14 +36,17 @@ class MainActivity : ComponentActivity() {
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     val json = """
     {
-        "username": "user@example.com",
-        "password": "123456"
+        "username": "fazelii",
+        "password": "Admin@83",
+        "email": "user3@example.com",
+        "first_name": "fazel",
+        "last_name": "fazeli"
     }
 """.trimIndent()
 
     ApiHandler().post(
         context = LocalContext.current,
-        path = "api/login",
+        path = "auth/register/",
         needToken = false,
         jsonBody = json
     ) {

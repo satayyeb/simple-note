@@ -3,11 +3,12 @@ package com.example.simplenote.data
 import android.content.Context
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
-    private const val BASE_URL = "https://simple-note.amirsalarsafaei.com/"
+    private const val BASE_URL = "http://10.0.2.2:8000/api/"
 
     fun getRetrofit(context: Context, needToken: Boolean): Retrofit {
         val clientBuilder = OkHttpClient.Builder()

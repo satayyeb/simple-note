@@ -10,7 +10,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class ApiHandler {
-    fun fetch(
+    fun get(
         context: Context,
         path: String,
         needToken: Boolean,
@@ -48,6 +48,8 @@ class ApiHandler {
 
         val requestBody = jsonBody
             .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+        Log.d("ApiHandler", "Request Body: $requestBody")
 
         service.postData(path, requestBody).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
