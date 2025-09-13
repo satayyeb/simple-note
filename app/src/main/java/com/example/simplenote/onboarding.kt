@@ -50,7 +50,7 @@ fun OnboardingScreen(onGetStartedClick: () -> Unit = {}) {
 
             // Illustration
             Image(
-                painter = painterResource(id = R.drawable.thinking), // replace with your asset
+                painter = painterResource(id = R.drawable.thinking_background), // replace with your asset
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth(0.8f)

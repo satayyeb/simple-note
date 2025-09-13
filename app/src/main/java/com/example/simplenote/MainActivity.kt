@@ -14,9 +14,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -43,6 +45,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun NavApp(modifier: Modifier = Modifier) {
+    val notesVm: NotesViewModel = viewModel()
     val navController = rememberNavController()
 
     var startDist = "onboarding"
@@ -59,7 +62,41 @@ fun NavApp(modifier: Modifier = Modifier) {
             RegisterScreen { navController.navigate("login") }
         }
         composable("home") {
-            navController.navigate("settings")
+            // بار اول که وارد می‌شویم، نوت‌ها را لود کن
+            LaunchedEffect (Unit) { notesVm.loadNotes() }
+
+            NotesHubScreen(
+                notes = notesVm.notes, // ← دیگر لیست ثابت نیست
+                onOpenNote = { noteId ->
+                    if (noteId.isNullOrBlank()) {
+                        navController.navigate("note") // add new
+                    } else {
+                        navController.navigate("note/${noteId}") // edit
+                    }
+                },
+                onHome = { /* همین صفحه‌ایم */ },
+                onSettings = { navController.navigate("settings") }
+            )
+        }
+        composable("note") {
+            // حالت Add (بدون id)
+            NoteScreen(
+                noteId = null,
+                loadNote = { _ -> null },
+                onSave = { note -> notesVm.save(note) { navController.popBackStack() } },
+                onDelete = { /* در حالت add دلیت نداریم */ },
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("note/{noteId}") { backStack ->
+            val noteId = backStack.arguments?.getString("noteId")
+            NoteScreen(
+                noteId = noteId,
+                loadNote = { id -> notesVm.loadOne(id) },
+                onSave = { note -> notesVm.save(note) { navController.popBackStack() } },
+                onDelete = { id -> notesVm.delete(id) { navController.popBackStack() } },
+                onBack = { navController.popBackStack() }
+            )
         }
         composable("settings") {
             SettingsActivity(

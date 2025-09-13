@@ -1,5 +1,6 @@
 package com.example.simplenote.network
 
+import com.example.simplenote.data.NotesApi
 import com.example.simplenote.data.SimpleNoteApi
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import retrofit2.Retrofit
@@ -7,12 +8,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object BackendApi {
     private const val BASE_URL = "http://10.0.2.2:8000"  // Replace with actual base URL
-    val api: SimpleNoteApi by lazy {
+
+    // یک بار Retrofit بساز
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(CoroutineCallAdapterFactory.Companion())  // For suspend functions
+            .addCallAdapterFactory(CoroutineCallAdapterFactory()) // اینجا Companion لازم نیست
             .build()
-            .create(SimpleNoteApi::class.java)
     }
+
+    // اینستنس‌ها
+    val api: SimpleNoteApi by lazy { retrofit.create(SimpleNoteApi::class.java) }
+    val notes: NotesApi by lazy { retrofit.create(NotesApi::class.java) }
 }

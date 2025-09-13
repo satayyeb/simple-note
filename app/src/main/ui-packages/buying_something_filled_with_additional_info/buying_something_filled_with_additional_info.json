@@ -153,7 +153,6 @@
             "is-structured": false,
             "children": [
               "Content",
-              "Status Bar",
               "Nav Bar",
               "Task Bar"
             ],

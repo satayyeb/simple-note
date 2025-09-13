@@ -94,6 +94,32 @@ data class ChangePasswordResponse(
     @SerializedName("detail")
     val detail: String,
 )
+data class NoteDto(
+    @SerializedName("id") val id: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String,
+    @SerializedName("created") val created: String? = null,
+    @SerializedName("updated") val updated: String? = null,
+)
+
+data class NoteCreateRequest(
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String,
+)
+
+data class NoteUpdateRequest(
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String,
+)
+
+data class PaginatedNotesResponse<T>(
+    @SerializedName("count") val count: Int,
+    @SerializedName("next") val next: String?,
+    @SerializedName("previous") val previous: String?,
+    @SerializedName("results") val results: List<T>
+)
+
+
 
 // Retrofit API Interface
 interface SimpleNoteApi {
@@ -118,4 +144,63 @@ interface SimpleNoteApi {
         @Header("Authorization") token: String,
         @Body request: ChangePasswordRequest,
     ): Response<ChangePasswordResponse>
+}
+
+interface NotesApi{
+
+    @GET("api/notes/")
+    suspend fun listNotes(
+        @Query("page") page: Int? = null,
+        @Query("page_size") pageSize: Int? = null,
+    ): Response<PaginatedNotesResponse<NoteDto>>
+
+    // POST /api/notes/
+    @POST("api/notes/")
+    suspend fun createNote(
+        @Body body: NoteCreateRequest
+    ): Response<NoteDto>
+
+    // GET /api/notes/{id}/
+    @GET("api/notes/{id}/")
+    suspend fun getNote(
+        @Path("id") id: Int
+    ): Response<NoteDto>
+
+    // PUT /api/notes/{id}/
+    @PUT("api/notes/{id}/")
+    suspend fun updateNotePut(
+        @Path("id") id: Int,
+        @Body body: NoteUpdateRequest
+    ): Response<NoteDto>
+
+    // PATCH /api/notes/{id}/
+    @PATCH("api/notes/{id}/")
+    suspend fun updateNotePatch(
+        @Path("id") id: Int,
+        @Body body: Map<String, @JvmSuppressWildcards Any>
+    ): Response<NoteDto>
+
+    // DELETE /api/notes/{id}/
+    @DELETE("api/notes/{id}/")
+    suspend fun deleteNote(
+        @Path("id") id: Int
+    ): Response<Unit>
+
+    // POST /api/notes/bulk?page=
+    @POST("api/notes/bulk")
+    suspend fun bulkCreate(
+        @Query("page") page: Int? = null,
+        @Body items: List<NoteCreateRequest>
+    ): Response<List<NoteDto>>
+
+    // GET /api/notes/filter?title=&description=&updated__gte=&updated__lte=&page=&page_size=
+    @GET("api/notes/filter")
+    suspend fun filterNotes(
+        @Query("title") title: String? = null,
+        @Query("description") description: String? = null,
+        @Query("updated__gte") updatedGte: String? = null,
+        @Query("updated__lte") updatedLte: String? = null,
+        @Query("page") page: Int? = null,
+        @Query("page_size") pageSize: Int? = null,
+    ): Response<PaginatedNotesResponse<NoteDto>>
 }
