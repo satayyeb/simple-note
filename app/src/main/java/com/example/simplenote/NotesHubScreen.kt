@@ -103,7 +103,7 @@ private fun HomeNotesListScreen(
                     // از LazyRow استفاده می‌کنیم تا داینامیک باشد
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.width(200.dp).height(300.dp)
                     ) {
                         items(notes, key = { it.id ?: it.title }) { note ->
                             DynamicNoteCard(
@@ -114,7 +114,7 @@ private fun HomeNotesListScreen(
                             )
                         }
                         // اسپیسِ انتهایی مثل Spacer1 در اتوژن
-                        item { Spacer1(modifier = Modifier.columnWeight(1f)) }
+                        item { Spacer1(modifier = Modifier.width(200.dp).height(300.dp)) }
                     }
                 }
             }
