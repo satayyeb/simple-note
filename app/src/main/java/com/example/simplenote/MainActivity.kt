@@ -4,10 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -57,26 +59,24 @@ fun NavApp(modifier: Modifier = Modifier) {
             RegisterScreen { navController.navigate("login") }
         }
         composable("home") {
-            Hello { navController.navigate("login") }
+            navController.navigate("settings")
+        }
+        composable("settings") {
+            SettingsActivity(
+                Modifier,
+                { /* navController.navigate("home") */ },
+                { navController.navigate("changePassword") },
+                {
+                    SessionManager.clearTokens()
+                    navController.navigate("login")
+                })
+        }
+        composable("changePassword") {
+            ChangePasswordActivity(Modifier) { navController.navigate("settings") }
         }
     }
 }
 
-@Composable
-fun Hello(logout: () -> Unit) {
-    Button(
-        onClick = {
-            SessionManager.clearTokens()
-            logout()
-        },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp),
-    ) {
-        Text("Logout", color= Color.White)
-    }
-    Text("hello world! You are login now.")
-}
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {

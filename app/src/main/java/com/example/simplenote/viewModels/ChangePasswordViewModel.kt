@@ -3,52 +3,42 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simplenote.data.RegisterRequest
-import com.example.simplenote.data.RegisterResponse
+import com.example.simplenote.data.ChangePasswordRequest
+import com.example.simplenote.data.ChangePasswordResponse
 import com.example.simplenote.network.BackendApi
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
-class RegisterViewModel : ViewModel() {
-    // UI states
+class ChangePasswordViewModel : ViewModel() {
+
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var isSuccess by mutableStateOf(false)
 
     private val api = BackendApi.api
 
-    fun registerUser(
-        firstName: String,
-        lastName: String,
-        username: String,
-        email: String,
-        password: String,
-        password2: String
+    fun changePassword(
+        oldPassword: String,
+        newPassword: String,
+        newPassword2: String,
     ) {
-        if (password != password2) {
+        if (newPassword != newPassword2){
             errorMessage = "Passwords do not match!"
             return
         }
-
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
             try {
-                val request = RegisterRequest(
-                    username = username,
-                    password = password,
-                    email = email,
-                    firstName = firstName.takeIf { it.isNotBlank() },
-                    lastName = lastName.takeIf { it.isNotBlank() }
+                val request = ChangePasswordRequest(
+                    oldPassword = oldPassword,
+                    newPassword = newPassword,
                 )
-                val response: Response<RegisterResponse> = api.register(request)
-
+                val response: Response<ChangePasswordResponse> = api.changePassword(request)
                 if (response.isSuccessful) {
-                    // Handle success (e.g., save user data, navigate)
                     isSuccess = true
                 } else {
-                    // Handle API errors (e.g., 400 validation)
-                    errorMessage = response.errorBody()?.string() ?: "Registration failed"
+                    errorMessage = response.errorBody()?.string() ?: "Change Password failed"
                 }
             } catch (e: Exception) {
                 // Handle network/other exceptions

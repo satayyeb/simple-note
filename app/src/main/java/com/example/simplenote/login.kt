@@ -4,6 +4,7 @@ import LoginViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -99,7 +100,14 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5C4EE5))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5C4EE5)),
+            elevation = ButtonDefaults.buttonElevation(  // Add this to fix uneven coloring
+                defaultElevation = 2.dp,  // Minimal elevation for flat look; adjust if needed
+                pressedElevation = 8.dp,
+                disabledElevation = 0.dp
+            ),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)  // Optional: Ensures icon/text fit well in fixed height
+
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(if (viewModel.isLoading) "Logging in..." else "Login", color = Color.White)

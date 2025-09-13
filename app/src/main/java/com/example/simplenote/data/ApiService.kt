@@ -82,6 +82,18 @@ data class RefreshResponse(
     val access: String,
 )
 
+data class ChangePasswordRequest(
+    @SerializedName("old_password")
+    val oldPassword: String,
+
+    @SerializedName("new_password")
+    val newPassword: String,
+)
+
+data class ChangePasswordResponse(
+    @SerializedName("detail")
+    val detail: String,
+)
 
 // Retrofit API Interface
 interface SimpleNoteApi {
@@ -100,4 +112,9 @@ interface SimpleNoteApi {
     suspend fun refreshToken(
         @Body request: RefreshRequest
     ): Response<RefreshResponse>
+
+    @POST("api/auth/change-password/")
+    suspend fun changePassword(
+        @Body request: ChangePasswordRequest,
+    ): Response<ChangePasswordResponse>
 }
