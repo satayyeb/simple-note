@@ -64,7 +64,6 @@ data class LoginRequest(
     val password: String
 )
 
-// Model for Login Response (200 OK)
 data class LoginResponse(
     @SerializedName("access")
     val access: String,
@@ -72,6 +71,17 @@ data class LoginResponse(
     @SerializedName("refresh")
     val refresh: String
 )
+
+data class RefreshRequest(
+    @SerializedName("refresh")
+    val refresh: String,
+)
+
+data class RefreshResponse(
+    @SerializedName("access")
+    val access: String,
+)
+
 
 // Retrofit API Interface
 interface SimpleNoteApi {
@@ -85,4 +95,9 @@ interface SimpleNoteApi {
     suspend fun login(
         @Body request: LoginRequest
     ): Response<LoginResponse>
+
+    @POST("api/auth/token/refresh/")
+    suspend fun refreshToken(
+        @Body request: RefreshRequest
+    ): Response<RefreshResponse>
 }

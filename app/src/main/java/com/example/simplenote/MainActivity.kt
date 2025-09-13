@@ -7,16 +7,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.simplenote.network.SessionManager
 import com.example.simplenote.ui.theme.SimpleNoteTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SessionManager.init(this)
         enableEdgeToEdge()
         setContent {
             SimpleNoteTheme {
@@ -33,21 +36,30 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun NavApp(modifier: Modifier = Modifier) {
-    val loginApi = fun(a: String, b: String) {
-        print("login")
-    }
     val navController = rememberNavController()
-    NavHost(navController, startDestination = "onboarding") {
+
+    var startDist = "onboarding"
+    if (SessionManager.isLoggedIn())
+        startDist = "home"
+    NavHost(navController, startDestination = startDist) {
         composable("onboarding") {
             OnboardingScreen { navController.navigate("login") }
         }
         composable("login") {
-            LoginScreen(loginApi) { navController.navigate("register") }
+            LoginScreen({ navController.navigate("home") }) { navController.navigate("register") }
         }
         composable("register") {
             RegisterScreen { navController.navigate("login") }
         }
+        composable("home") {
+            Hello()
+        }
     }
+}
+
+@Composable
+fun Hello() {
+    Text("hello world! You are login now.")
 }
 
 @Composable

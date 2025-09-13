@@ -3,9 +3,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simplenote.data.ApiClient
 import com.example.simplenote.data.RegisterRequest
 import com.example.simplenote.data.RegisterResponse
+import com.example.simplenote.network.BackendApi
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
@@ -15,8 +15,7 @@ class RegisterViewModel : ViewModel() {
     var errorMessage by mutableStateOf<String?>(null)
     var isSuccess by mutableStateOf(false)
 
-    // Inject or create your Retrofit API instance here
-    private val api = BackEndApi.api  // Assuming RetrofitInstance is your singleton
+    private val api = BackendApi.api
 
     fun registerUser(
         firstName: String,
