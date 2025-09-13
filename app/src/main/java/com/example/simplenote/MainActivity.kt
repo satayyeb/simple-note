@@ -50,13 +50,13 @@ fun NavApp(modifier: Modifier = Modifier) {
 
     var startDist = "onboarding"
     if (SessionManager.isLoggedIn())
-        startDist = "settings"  // TODO: Change to home later
+        startDist = "home"
     NavHost(navController, startDestination = startDist) {
         composable("onboarding") {
             OnboardingScreen { navController.navigate("login") }
         }
         composable("login") {
-            LoginScreen({ navController.navigate("settings") /*TODO: change this to home*/ }) {
+            LoginScreen({ navController.navigate("home") }) {
                 navController.navigate(
                     "register"
                 )
@@ -67,7 +67,7 @@ fun NavApp(modifier: Modifier = Modifier) {
         }
         composable("home") {
             // بار اول که وارد می‌شویم، نوت‌ها را لود کن
-            LaunchedEffect (Unit) { notesVm.loadNotes() }
+            LaunchedEffect(Unit) { notesVm.loadNotes() }
 
             NotesHubScreen(
                 notes = notesVm.notes, // ← دیگر لیست ثابت نیست
@@ -105,7 +105,7 @@ fun NavApp(modifier: Modifier = Modifier) {
         composable("settings") {
             SettingsActivity(
                 Modifier,
-                { /* navController.navigate("home") */ },
+                { navController.navigate("home") },
                 { navController.navigate("changePassword") },
                 {
                     SessionManager.clearTokens()
