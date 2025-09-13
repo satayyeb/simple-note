@@ -7,6 +7,7 @@ import com.example.simplenote.data.RegisterRequest
 import com.example.simplenote.data.RegisterResponse
 import com.example.simplenote.network.BackendApi
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import retrofit2.Response
 
 class RegisterViewModel : ViewModel() {
@@ -48,7 +49,16 @@ class RegisterViewModel : ViewModel() {
                     isSuccess = true
                 } else {
                     // Handle API errors (e.g., 400 validation)
-                    errorMessage = response.errorBody()?.string() ?: "Registration failed"
+                    errorMessage = response.errorBody()?.string()
+                    if (errorMessage != null) {
+                        val ali = JSONObject(errorMessage)
+                        val errors = ali.getJSONArray("errors")
+                        val g = (0 until errors.length()).map { i ->
+                            errors.getJSONObject(i).getString("attr") + ": " +
+                                    errors.getJSONObject(i).getString("detail")
+                        }
+                        errorMessage = g.joinToString("\n")
+                    }
                 }
             } catch (e: Exception) {
                 // Handle network/other exceptions

@@ -8,6 +8,7 @@ import com.example.simplenote.data.LoginResponse
 import com.example.simplenote.network.BackendApi
 import com.example.simplenote.network.SessionManager
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import retrofit2.Response
 
 class LoginViewModel : ViewModel() {
@@ -38,7 +39,16 @@ class LoginViewModel : ViewModel() {
                     SessionManager.saveTokens(body!!.access, body.refresh)
                     isSuccess = true
                 } else {
-                    errorMessage = response.errorBody()?.string() ?: "Login failed"
+                    errorMessage = response.errorBody()?.string()
+                    if (errorMessage != null) {
+                        val ali = JSONObject(errorMessage)
+                        val errors = ali.getJSONArray("errors")
+                        val g = (0 until errors.length()).map { i ->
+                            errors.getJSONObject(i).getString("attr") + ": " +
+                                    errors.getJSONObject(i).getString("detail")
+                        }
+                        errorMessage = g.joinToString("\n")
+                    }
                 }
             } catch (e: Exception) {
                 // Handle network/other exceptions

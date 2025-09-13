@@ -149,9 +149,9 @@ interface SimpleNoteApi {
     ): Response<LoginResponse>
 
     @POST("api/auth/token/refresh/")
-    suspend fun refreshToken(
+    fun refreshToken(
         @Body request: RefreshRequest
-    ): Response<RefreshResponse>
+    ): Call<RefreshResponse>
 
     @POST("api/auth/change-password/")
     suspend fun changePassword(
