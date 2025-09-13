@@ -1,12 +1,20 @@
 package com.example.simplenote
 
+import SettingsViewModel
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.simplenote.settings.AppSettings
 import com.example.simplenote.settings.AppVersion
 import com.example.simplenote.settings.Box
@@ -42,6 +50,18 @@ import com.example.simplenote.settings.ProfileSection
 import com.example.simplenote.settings.Text
 import com.example.simplenote.settings.Title
 import com.example.simplenote.settings.TopLevel
+import com.example.simplenote.settingslogoutconfirmation.Backdrop
+import com.example.simplenote.settingslogoutconfirmation.Button
+import com.example.simplenote.settingslogoutconfirmation.Button1
+import com.example.simplenote.settingslogoutconfirmation.Buttons
+import com.example.simplenote.settingslogoutconfirmation.Content1
+import com.example.simplenote.settingslogoutconfirmation.Description
+import com.example.simplenote.settingslogoutconfirmation.Modal
+import com.example.simplenote.settingslogoutconfirmation.Modal1
+import com.example.simplenote.settingslogoutconfirmation.Text1
+import com.example.simplenote.settingslogoutconfirmation.Text2
+import com.example.simplenote.settingslogoutconfirmation.Title1
+import com.example.simplenote.settingslogoutconfirmation.TitleDescription
 
 @Composable
 fun SettingsActivity(
@@ -50,8 +70,18 @@ fun SettingsActivity(
     onChangePassword: () -> Unit,
     onLogout: () -> Unit
 ) {
+
+    val viewModel: SettingsViewModel = viewModel()
+    var confirm by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchUser()
+    }
+
     TopLevel(modifier = modifier) {
+
         Content(
+
             modifier = Modifier
                 .boxAlign(
                     alignment = Alignment.TopStart,
@@ -66,7 +96,8 @@ fun SettingsActivity(
                 ProfilePictureFullNameEmailAddress(modifier = Modifier.rowWeight(1.0f)) {
                     ProfilePicture()
                     FullNameEmailAddress(modifier = Modifier.rowWeight(1.0f)) {
-                        FullName(modifier = Modifier.rowWeight(1.0f))
+                        Text(viewModel.name)
+//                        FullName(modifier = Modifier.rowWeight(1.0f))
                         EmailAddressIcon(modifier = Modifier.rowWeight(1.0f)) {
                             IconOutlineMail {
                                 Icon(
@@ -82,7 +113,8 @@ fun SettingsActivity(
                                         .columnWeight(1.0f)
                                 )
                             }
-                            EmailAddress(modifier = Modifier.rowWeight(1.0f))
+                            Text(viewModel.email)
+//                            EmailAddress(modifier = Modifier.rowWeight(1.0f))
                         }
                     }
                 }
@@ -101,9 +133,10 @@ fun SettingsActivity(
             AppSettings(modifier = Modifier.rowWeight(1.0f)) {
                 Label()
                 Menus(modifier = Modifier.rowWeight(1.0f)) {
-                    Main(modifier = Modifier
-                        .rowWeight(1.0f)
-                        .clickable { onChangePassword() }) {
+                    Main(
+                        modifier = Modifier
+                            .rowWeight(1.0f)
+                            .clickable { onChangePassword() }) {
                         ExtraMenuSingle(modifier = Modifier.rowWeight(1.0f)) {
                             IconOutlineLockClosed(
                                 modifier = Modifier.boxAlign(
@@ -171,9 +204,10 @@ fun SettingsActivity(
                             )
                             .rowWeight(1.0f)
                     )
-                    LogOut(modifier = Modifier
-                        .rowWeight(1.0f)
-                        .clickable { onLogout() }) {
+                    LogOut(
+                        modifier = Modifier
+                            .rowWeight(1.0f)
+                            .clickable { confirm = true }) {
                         IconOutlineLogout(
                             modifier = Modifier.boxAlign(
                                 alignment = Alignment.TopStart,
@@ -218,6 +252,7 @@ fun SettingsActivity(
                 )
             )
         )
+
         NavBar(
             modifier = Modifier
                 .boxAlign(
@@ -229,17 +264,20 @@ fun SettingsActivity(
                 )
                 .rowWeight(1.0f)
         ) {
-            Box(modifier = Modifier
-                .rowWeight(1.0f)
-                )
+            Box(
+                modifier = Modifier
+                    .rowWeight(1.0f)
+            )
             Link(
-                modifier = Modifier.boxAlign(
-                    alignment = Alignment.TopStart,
-                    offset = DpOffset(
-                        x = 16.0.dp,
-                        y = 16.0.dp
+                modifier = Modifier
+                    .boxAlign(
+                        alignment = Alignment.TopStart,
+                        offset = DpOffset(
+                            x = 16.0.dp,
+                            y = 16.0.dp
+                        )
                     )
-                ).clickable { onBackHome() }
+                    .clickable { onBackHome() }
             ) {
                 IconSolidCheveronLeft {
                     Icon4(
@@ -259,6 +297,51 @@ fun SettingsActivity(
                     )
                 )
             )
+        }
+        if (confirm) {
+            Modal(
+                modifier = Modifier
+                    .rowWeight(1.0f)
+                    .columnWeight(1.0f)
+            ) {
+                Backdrop(
+                    modifier = Modifier
+                        .rowWeight(1.0f)
+                        .columnWeight(1.0f)
+                )
+                Modal1(
+                    modifier = Modifier
+                        .boxAlign(
+                            alignment = Alignment.CenterStart,
+                            offset = DpOffset(
+                                x = 0.0.dp,
+                                y = 0.0.dp
+                            )
+                        )
+                        .rowWeight(1.0f)
+                ) {
+                    Content1(modifier = Modifier.rowWeight(1.0f)) {
+                        TitleDescription(modifier = Modifier.rowWeight(1.0f)) {
+                            Title1(modifier = Modifier.rowWeight(1.0f))
+                            Description(modifier = Modifier.rowWeight(1.0f))
+                        }
+                    }
+                    Buttons(modifier = Modifier.rowWeight(1.0f)) {
+                        Button(
+                            modifier = Modifier
+                                .rowWeight(1.0f)
+                                .clickable { confirm = false }) {
+                            Text1()
+                        }
+                        Button1(
+                            modifier = Modifier
+                                .rowWeight(1.0f)
+                                .clickable { onLogout() }) {
+                            Text2()
+                        }
+                    }
+                }
+            }
         }
     }
 }

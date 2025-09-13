@@ -121,6 +121,20 @@ data class PaginatedNotesResponse<T>(
 
 
 
+data class UserInfoResponse(
+    @SerializedName("id")
+    val id: String,
+    @SerializedName("username")
+    val username: String,
+    @SerializedName("email")
+    val email: String,
+    @SerializedName("first_name")
+    val firstName: String?,
+    @SerializedName("last_name")
+    val lastName: String?,
+)
+
+
 // Retrofit API Interface
 interface SimpleNoteApi {
 
@@ -144,6 +158,11 @@ interface SimpleNoteApi {
         @Header("Authorization") token: String,
         @Body request: ChangePasswordRequest,
     ): Response<ChangePasswordResponse>
+
+    @GET("api/auth/userinfo")
+    suspend fun getUserInfo(
+        @Header("Authorization") token: String
+    ): Response<UserInfoResponse>
 }
 
 interface NotesApi{

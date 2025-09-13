@@ -50,13 +50,17 @@ fun NavApp(modifier: Modifier = Modifier) {
 
     var startDist = "onboarding"
     if (SessionManager.isLoggedIn())
-        startDist = "home"
+        startDist = "settings"  // TODO: Change to home later
     NavHost(navController, startDestination = startDist) {
         composable("onboarding") {
             OnboardingScreen { navController.navigate("login") }
         }
         composable("login") {
-            LoginScreen({ navController.navigate("home") }) { navController.navigate("register") }
+            LoginScreen({ navController.navigate("settings") /*TODO: change this to home*/ }) {
+                navController.navigate(
+                    "register"
+                )
+            }
         }
         composable("register") {
             RegisterScreen { navController.navigate("login") }
