@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.simplenote.data.ChangePasswordRequest
 import com.example.simplenote.data.ChangePasswordResponse
 import com.example.simplenote.network.BackendApi
+import com.example.simplenote.network.SessionManager
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
@@ -34,7 +35,10 @@ class ChangePasswordViewModel : ViewModel() {
                     oldPassword = oldPassword,
                     newPassword = newPassword,
                 )
-                val response: Response<ChangePasswordResponse> = api.changePassword(request)
+                val response: Response<ChangePasswordResponse> = api.changePassword(
+                    token = "Bearer ${SessionManager.fetchAccessToken()}",
+                    request = request
+                )
                 if (response.isSuccessful) {
                     isSuccess = true
                 } else {

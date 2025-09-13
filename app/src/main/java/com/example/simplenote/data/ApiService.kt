@@ -115,6 +115,7 @@ interface SimpleNoteApi {
 
     @POST("api/auth/change-password/")
     suspend fun changePassword(
+        @Header("Authorization") token: String,
         @Body request: ChangePasswordRequest,
     ): Response<ChangePasswordResponse>
 }
