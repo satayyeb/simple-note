@@ -66,21 +66,27 @@ fun NavApp(modifier: Modifier = Modifier) {
             RegisterScreen { navController.navigate("login") }
         }
         composable("home") {
-            LaunchedEffect(Unit) { notesVm.loadNotes() }
+            val notesVm: NotesViewModel = viewModel()
+
+            LaunchedEffect(Unit) {
+                notesVm.updatePageSize(4)   // به جای notesVm.pageSize = 4
+                notesVm.refresh()
+            }
 
             NotesHubScreen(
                 notes = notesVm.notes,
-                onOpenNote = { noteId ->
-                    if (noteId.isNullOrBlank()) {
-                        navController.navigate("note") // add new
-                    } else {
-                        navController.navigate("note/${noteId}") // edit
-                    }
-                },
-                onHome = { /* همین صفحه‌ایم */ },
-                onSettings = { navController.navigate("settings") }
+                onOpenNote = { id -> if (id.isNullOrBlank()) navController.navigate("note") else navController.navigate("note/$id") },
+                onHome = {},
+                onSettings = { navController.navigate("settings") },
+                query = notesVm.searchQuery,
+                page = notesVm.page,
+                totalPages = notesVm.totalPages,
+                onQueryChange = { q -> notesVm.updateSearchQuery(q) },
+                onPrevPage = { notesVm.prevPage() },
+                onNextPage = { notesVm.nextPage() }
             )
         }
+
         composable("note") {
             NoteScreen(
                 noteId = null,
