@@ -75,7 +75,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            placeholder = { Text("Example: johndoe@gmail.com") },
+            placeholder = { Text("Example: ali") },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
