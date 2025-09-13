@@ -48,7 +48,7 @@ fun NavApp(modifier: Modifier = Modifier) {
     val notesVm: NotesViewModel = viewModel()
     val navController = rememberNavController()
 
-    var startDist = "onboarding"
+    var startDist = "login"
     if (SessionManager.isLoggedIn())
         startDist = "home"
     NavHost(navController, startDestination = startDist) {
@@ -66,11 +66,10 @@ fun NavApp(modifier: Modifier = Modifier) {
             RegisterScreen { navController.navigate("login") }
         }
         composable("home") {
-            // بار اول که وارد می‌شویم، نوت‌ها را لود کن
             LaunchedEffect(Unit) { notesVm.loadNotes() }
 
             NotesHubScreen(
-                notes = notesVm.notes, // ← دیگر لیست ثابت نیست
+                notes = notesVm.notes,
                 onOpenNote = { noteId ->
                     if (noteId.isNullOrBlank()) {
                         navController.navigate("note") // add new
@@ -83,12 +82,11 @@ fun NavApp(modifier: Modifier = Modifier) {
             )
         }
         composable("note") {
-            // حالت Add (بدون id)
             NoteScreen(
                 noteId = null,
                 loadNote = { _ -> null },
-                onSave = { note -> notesVm.save(note) { navController.popBackStack() } },
-                onDelete = { /* در حالت add دلیت نداریم */ },
+                onSave = { note, onSaved -> notesVm.save(note, onSaved) },  // ← جدید
+                onDelete = { id -> notesVm.delete(id) { /* optional refresh */ } },
                 onBack = { navController.popBackStack() }
             )
         }
@@ -97,8 +95,8 @@ fun NavApp(modifier: Modifier = Modifier) {
             NoteScreen(
                 noteId = noteId,
                 loadNote = { id -> notesVm.loadOne(id) },
-                onSave = { note -> notesVm.save(note) { navController.popBackStack() } },
-                onDelete = { id -> notesVm.delete(id) { navController.popBackStack() } },
+                onSave = { note, onSaved -> notesVm.save(note, onSaved) },  // ← جدید
+                onDelete = { id -> notesVm.delete(id) { /* optional refresh */ } },
                 onBack = { navController.popBackStack() }
             )
         }

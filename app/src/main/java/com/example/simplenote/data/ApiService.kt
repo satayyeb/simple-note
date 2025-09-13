@@ -98,8 +98,10 @@ data class NoteDto(
     @SerializedName("id") val id: Int,
     @SerializedName("title") val title: String,
     @SerializedName("description") val description: String,
-    @SerializedName("created") val created: String? = null,
-    @SerializedName("updated") val updated: String? = null,
+    @SerializedName("created_at") val created: String? = null,
+    @SerializedName("updated_at") val updated: String? = null,
+    @SerializedName("creator_name") val name: String? = null,
+    @SerializedName("creator_username") val username: String? = null,
 )
 
 data class NoteCreateRequest(
@@ -171,45 +173,52 @@ interface NotesApi{
     suspend fun listNotes(
         @Query("page") page: Int? = null,
         @Query("page_size") pageSize: Int? = null,
+        @Header("Authorization") token: String
     ): Response<PaginatedNotesResponse<NoteDto>>
 
     // POST /api/notes/
     @POST("api/notes/")
     suspend fun createNote(
-        @Body body: NoteCreateRequest
+        @Body body: NoteCreateRequest,
+        @Header("Authorization") token: String
     ): Response<NoteDto>
 
     // GET /api/notes/{id}/
     @GET("api/notes/{id}/")
     suspend fun getNote(
-        @Path("id") id: Int
+        @Path("id") id: Int,
+        @Header("Authorization") token: String
     ): Response<NoteDto>
 
     // PUT /api/notes/{id}/
     @PUT("api/notes/{id}/")
     suspend fun updateNotePut(
         @Path("id") id: Int,
-        @Body body: NoteUpdateRequest
+        @Body body: NoteUpdateRequest,
+        @Header("Authorization") token: String
     ): Response<NoteDto>
 
     // PATCH /api/notes/{id}/
     @PATCH("api/notes/{id}/")
     suspend fun updateNotePatch(
         @Path("id") id: Int,
-        @Body body: Map<String, @JvmSuppressWildcards Any>
+        @Body body: Map<String, @JvmSuppressWildcards Any>,
+        @Header("Authorization") token: String
     ): Response<NoteDto>
 
     // DELETE /api/notes/{id}/
     @DELETE("api/notes/{id}/")
     suspend fun deleteNote(
-        @Path("id") id: Int
+        @Path("id") id: Int,
+        @Header("Authorization") token: String
     ): Response<Unit>
 
     // POST /api/notes/bulk?page=
     @POST("api/notes/bulk")
     suspend fun bulkCreate(
         @Query("page") page: Int? = null,
-        @Body items: List<NoteCreateRequest>
+        @Body items: List<NoteCreateRequest>,
+        @Header("Authorization") token: String
     ): Response<List<NoteDto>>
 
     // GET /api/notes/filter?title=&description=&updated__gte=&updated__lte=&page=&page_size=
@@ -221,5 +230,6 @@ interface NotesApi{
         @Query("updated__lte") updatedLte: String? = null,
         @Query("page") page: Int? = null,
         @Query("page_size") pageSize: Int? = null,
+        @Header("Authorization") token: String
     ): Response<PaginatedNotesResponse<NoteDto>>
 }

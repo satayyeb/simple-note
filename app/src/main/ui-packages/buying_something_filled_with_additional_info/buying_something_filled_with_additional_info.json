@@ -275,7 +275,6 @@
             "is-structured": false,
             "children": [
               "Box1",
-              "Status",
               "Buttons"
             ],
             "clip-content": false

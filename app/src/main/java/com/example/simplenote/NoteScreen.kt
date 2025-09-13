@@ -8,10 +8,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.relay.compose.* // برای کامپوننت‌های Relay (Template)
+import com.google.relay.compose.*
 import com.example.simplenote.buyingsomethingfilledwithadditionalinfo.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-// ——— مدل نوت (سراسری و مشترک با بقیه‌ی صفحات)
 data class NoteUi(
     val id: String? = null,
     val title: String = "",
@@ -19,92 +21,86 @@ data class NoteUi(
     val lastEditedText: String = ""
 )
 
-/**
- * NoteScreen (Add/Edit):
- * - وقتی noteId != null: ویرایش
- * - وقتی noteId == null: ایجاد نوت جدید
- */
 @Composable
 fun NoteScreen(
     noteId: String?,
-    loadNote: suspend (String) -> NoteUi?,   // گرفتن دیتای نوت
-    onSave: (NoteUi) -> Unit,                // ذخیره (ساخت/آپدیت)
-    onDelete: (String) -> Unit,              // حذف
-    onBack: () -> Unit                       // برگشت
+    loadNote: suspend (String) -> NoteUi?,
+    onSave: (NoteUi, (NoteUi?) -> Unit) -> Unit, // ← بازگشتی شد
+    onDelete: (String) -> Unit,
+    onBack: () -> Unit
 ) {
+    var currentId by rememberSaveable { mutableStateOf(noteId) }
     var title by rememberSaveable { mutableStateOf("") }
     var body by rememberSaveable { mutableStateOf("") }
     var statusText by rememberSaveable { mutableStateOf("") }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // بارگذاری نوت موجود در حالت ویرایش
+    // بارگذاری اولیه
     LaunchedEffect(noteId) {
         if (!noteId.isNullOrBlank()) {
             loadNote(noteId)?.let { n ->
+                currentId = n.id
                 title = n.title
                 body = n.body
-                statusText = n.lastEditedText.ifBlank { "Editing existing note" }
+                statusText = if (n.lastEditedText.isNotBlank()) n.lastEditedText else "editing..."
             }
         } else {
-            statusText = "New note"
+            statusText = "new note"
         }
     }
 
-    // ریشه: Box پس‌زمینه + Column محتوای روی آن (بدون align)
-    androidx.compose.foundation.layout.Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // پس‌زمینه/قالب اتوژن (تمام‌صفحه)
-        BuyingSomethingFilledWithAdditionalInfo(
-            modifier = Modifier.matchParentSize()
-        )
+    // ——— اتوسیوی دی‌بونس ———
+    val scope = rememberCoroutineScope()
+    var saveJob: Job? by remember { mutableStateOf(null) }
+    fun scheduleAutoSave() {
+        // اگر هر دو خالی‌اند، سیو نکن
+        if (title.isBlank() || body.isBlank()) return
 
-        // لایه‌ی محتوایی
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            // فاصله تا نوار بالا (پیش‌تر 42dp بود)
-            Spacer(modifier = Modifier.height(42.dp))
+        val toSave = NoteUi(id = currentId, title = title.trim(), body = body.trim())
+        saveJob?.cancel()
 
-            // ——— نوار بالا (Back) ———
-            NavBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 0.dp) // قابل تنظیم
-            ) {
-                // دکمهٔ Back (Relay Link)
+        // فوراً به کاربر بگو "در حال ذخیره..."
+        statusText = "saving..."
+
+        saveJob = scope.launch {
+            delay(600) // debounce
+            onSave(toSave) { saved ->
+                val hhmm = java.time.LocalTime.now().withSecond(0).withNano(0).toString() // 21:34
+                if (saved != null) {
+                    currentId = saved.id ?: currentId
+                    statusText = saved.lastEditedText.ifBlank { "last edit: $hhmm" }
+                } else {
+                    statusText = "save failed"
+                }
+            }
+        }
+    }
+
+    androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
+        BuyingSomethingFilledWithAdditionalInfo(Modifier.matchParentSize())
+
+        Column(Modifier.fillMaxSize()) {
+            Spacer(Modifier.height(42.dp))
+
+            NavBar(Modifier.fillMaxWidth()) {
                 Link(
                     modifier = Modifier
                         .padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
                         .clickable { onBack() }
                 ) {
-                    IconSolidCheveronLeft {
-                        Icon(
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    Text() // متن داخل قالب
+                    IconSolidCheveronLeft { Icon(Modifier.fillMaxSize()) }
+                    Text()
                 }
             }
 
-            // فاصله تا محتوای اصلی (قبلاً y≈120dp، اینجا 78dp بعد از NavBar)
-            Spacer(modifier = Modifier.height(78.dp))
+            Spacer(Modifier.height(78.dp))
 
-            // ——— محتوای اصلی (Title + Body) ———
-            Content(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Notes(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // Title
-                    TitleInput(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+            Content(Modifier.fillMaxWidth()) {
+                Notes(Modifier.fillMaxWidth()) {
+                    TitleInput(Modifier.fillMaxWidth()) {
                         TextField(
                             value = title,
-                            onValueChange = { title = it },
+                            onValueChange = { title = it; scheduleAutoSave() },
                             placeholder = { Text("Title") },
                             textStyle = LocalTextStyle.current.copy(
                                 fontSize = MaterialTheme.typography.headlineSmall.fontSize
@@ -112,7 +108,6 @@ fun NoteScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    // Body (multi-line)
                     FreeTextAreaInput(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -120,7 +115,7 @@ fun NoteScreen(
                     ) {
                         TextField(
                             value = body,
-                            onValueChange = { body = it },
+                            onValueChange = { body = it; scheduleAutoSave() },
                             placeholder = { Text("Feel Free to Write Here...") },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -131,21 +126,11 @@ fun NoteScreen(
                 }
             }
 
-            // فضای خالی تا پایین صفحه
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(Modifier.weight(1f))
 
-            // ——— نوار پایین (Status + Save/Delete) ———
-            TaskBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                // پس‌زمینه بار (در طرح قبلی y=-1dp بود، در Compose استاندارد نیازی نیست)
-                Box1(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-
-                // ردیف: Status + متن وضعیت | دکمه‌ها
+            // نوار پایین (Status + Delete)
+            TaskBar(Modifier.fillMaxWidth()) {
+                Box1(Modifier.fillMaxWidth())
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -153,52 +138,41 @@ fun NoteScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // بخش وضعیت
+                    // وضعیت: "آخرین ویرایش ..."
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Status(modifier = Modifier.padding(end = 8.dp))
                         RelayText(content = statusText)
                     }
-
-                    // دکمه‌ها
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Save
+                    // دکمهٔ حذف (فقط وقتی id داریم)
+                    if (!currentId.isNullOrBlank()) {
                         TaskBarButton2(
                             modifier = Modifier
-                                .height(IntrinsicSize.Min)
-                                .clickable {
-                                    val toSave = NoteUi(
-                                        id = noteId,
-                                        title = title.trim(),
-                                        body = body.trim(),
-                                        lastEditedText = "Saved just now"
-                                    )
-                                    onSave(toSave)
-                                    statusText = "Saved just now"
-                                }
+                                .height(48.dp)               // ← ارتفاع صریح
+                                .clickable { showDeleteDialog = true }
                         ) {
-                            RelayText(content = "Save")
-                        }
-
-                        // فاصله بین دکمه‌ها
-                        Spacer(Modifier.width(8.dp))
-
-                        // Delete فقط وقتی noteId داریم
-                        if (!noteId.isNullOrBlank()) {
-                            TaskBarButton2(
-                                modifier = Modifier
-                                    .height(IntrinsicSize.Min)
-                                    .clickable { onDelete(noteId) }
-                            ) {
-                                IconOutlineTrash {
-                                    Icon3(
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
-                            }
+                            IconOutlineTrash { Icon3(Modifier.fillMaxSize()) }
                         }
                     }
                 }
             }
+        }
+
+        // دیالوگ تأیید حذف
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteDialog = false },
+                title = { Text("delete node") },
+                text = { Text("are you sure?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        currentId?.let { onDelete(it) }
+                        showDeleteDialog = false
+                        onBack()
+                    }) { Text("yes, delete") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteDialog = false }) { Text("cancel") }
+                }
+            )
         }
     }
 }

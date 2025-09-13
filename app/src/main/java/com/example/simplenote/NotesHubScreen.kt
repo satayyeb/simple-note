@@ -97,8 +97,8 @@ private fun HomeNotesListScreen(
                     itemSpacing = 16.0,
                     clipToParent = false,
                     modifier = Modifier
-                        .height(IntrinsicSize.Min)
-                        .fillMaxWidth()
+                    .wrapContentHeight()   // ← دیگه intrinsic نیست
+                    .fillMaxWidth()
                 ) {
                     // از LazyRow استفاده می‌کنیم تا داینامیک باشد
                     LazyRow(

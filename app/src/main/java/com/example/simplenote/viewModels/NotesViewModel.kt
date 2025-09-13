@@ -11,6 +11,7 @@ import com.example.simplenote.data.NoteUpdateRequest
 import com.example.simplenote.data.NotesApi
 import com.example.simplenote.data.PaginatedNotesResponse
 import com.example.simplenote.network.BackendApi
+import com.example.simplenote.network.SessionManager
 import kotlinx.coroutines.launch
 
 /**
@@ -44,7 +45,9 @@ class NotesViewModel : ViewModel() {
             isLoading = true
             errorMessage = null
             try {
-                val res = api.listNotes(page, pageSize)
+                val res = api.listNotes(page, pageSize,
+                    token = "Bearer ${SessionManager.fetchAccessToken()}"
+                )
                 if (res.isSuccessful) {
                     val body: PaginatedNotesResponse<NoteDto>? = res.body()
                     totalCount = body?.count ?: 0
@@ -65,33 +68,56 @@ class NotesViewModel : ViewModel() {
         // اول از لیست فعلی اگر موجود بود همونو بده
         notes.firstOrNull { it.id == noteId }?.let { return it }
         return try {
-            val res = api.getNote(id)
+            val res = api.getNote(id,
+                token = "Bearer ${SessionManager.fetchAccessToken()}"
+            )
             if (res.isSuccessful) res.body()?.toUi() else null
         } catch (_: Exception) { null }
     }
 
     // ---------- Create / Update ----------
-    fun save(note: NoteUi, onDone: () -> Unit) {
+    fun save(note: NoteUi, onSaved: (NoteUi?) -> Unit) {
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
             try {
                 val resp = if (note.id.isNullOrBlank()) {
-                    api.createNote(NoteCreateRequest(title = note.title, description = note.body))
+                    api.createNote(NoteCreateRequest(note.title, note.body),
+                        token = "Bearer ${SessionManager.fetchAccessToken()}"
+                    )
                 } else {
-                    api.updateNotePut(
-                        id = note.id!!.toInt(),
-                        body = NoteUpdateRequest(title = note.title, description = note.body)
+                    api.updateNotePut(note.id!!.toInt(), NoteUpdateRequest(note.title, note.body),
+                        token = "Bearer ${SessionManager.fetchAccessToken()}"
                     )
                 }
                 if (resp.isSuccessful) {
-                    loadNotes()
-                    onDone()
+                    val dto = resp.body()
+                    val savedUi = dto?.let {
+                        NoteUi(
+                            id = it.id.toString(),
+                            title = it.title,
+                            body = it.description,
+                            lastEditedText = "last edit: " + java.time.LocalTime.now()
+                                .withSecond(0).withNano(0).toString()
+                        )
+                    }
+                    // آپدیت خوش‌بینانه‌ی لیست برای نمایش فوری در خانه
+                    savedUi?.let { s ->
+                        notes = buildList {
+                            // اگر قبلاً وجود داشت جایگزین کن، وگرنه اضافه کن
+                            val replaced = notes.any { it.id == s.id }
+                            if (replaced) addAll(notes.map { if (it.id == s.id) s else it })
+                            else add(0, s).also { addAll(notes) }
+                        }
+                    }
+                    onSaved(savedUi)
                 } else {
                     errorMessage = resp.errorBody()?.string() ?: "Save failed"
+                    onSaved(null)
                 }
             } catch (e: Exception) {
                 errorMessage = "Network error: ${e.message}"
+                onSaved(null)
             } finally {
                 isLoading = false
             }
@@ -105,7 +131,9 @@ class NotesViewModel : ViewModel() {
             isLoading = true
             errorMessage = null
             try {
-                val resp = api.deleteNote(id)
+                val resp = api.deleteNote(id,
+                    token = "Bearer ${SessionManager.fetchAccessToken()}"
+                )
                 if (resp.isSuccessful) {
                     loadNotes()
                     onDone()
@@ -139,7 +167,8 @@ class NotesViewModel : ViewModel() {
                     updatedGte = updatedGteIso,
                     updatedLte = updatedLteIso,
                     page = page,
-                    pageSize = pageSize
+                    pageSize = pageSize,
+                    token = "Bearer ${SessionManager.fetchAccessToken()}"
                 )
                 if (res.isSuccessful) {
                     val body = res.body()
@@ -158,7 +187,9 @@ class NotesViewModel : ViewModel() {
             isLoading = true
             errorMessage = null
             try {
-                val res = api.updateNotePatch(noteId, fields)
+                val res = api.updateNotePatch(noteId, fields,
+                    token = "Bearer ${SessionManager.fetchAccessToken()}"
+                )
                 if (res.isSuccessful) {
                     loadNotes()
                     onDone()
@@ -174,7 +205,9 @@ class NotesViewModel : ViewModel() {
             isLoading = true
             errorMessage = null
             try {
-                val res = api.bulkCreate(page = null, items = items)
+                val res = api.bulkCreate(page = null, items = items,
+                    token = "Bearer ${SessionManager.fetchAccessToken()}"
+                )
                 if (res.isSuccessful) {
                     loadNotes()
                     onDone()
