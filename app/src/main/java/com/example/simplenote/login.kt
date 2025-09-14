@@ -111,7 +111,6 @@ fun LoginScreen(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(if (viewModel.isLoading) "Logging in..." else "Login", color = Color.White)
-                Spacer(modifier = Modifier.width(8.dp))
                 Icon(
                     imageVector = Icons.Default.ArrowForward,
                     contentDescription = "Login",

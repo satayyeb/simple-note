@@ -37,10 +37,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.simplenote.homenotes.Spacer
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun RegisterScreen(
@@ -62,10 +60,12 @@ fun RegisterScreen(
     var password by remember { mutableStateOf("") }
     var password2 by remember { mutableStateOf("") }
 
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(24.dp).verticalScroll(scrollState),
         verticalArrangement = Arrangement.Center
     ) {
 
@@ -173,7 +173,6 @@ fun RegisterScreen(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(if (viewModel.isLoading) "Registering..." else "Register", color = Color.White)
-                Spacer(modifier = Modifier.width(8.dp))
                 Icon(
                     imageVector = Icons.Default.ArrowForward,
                     contentDescription = "Register",

@@ -12,7 +12,7 @@ val okHttpClient = OkHttpClient.Builder()
     .build()
 
 object BackendApi {
-    private const val BASE_URL = "https://simple.darkube.app"  // Replace with actual base URL
+    private const val BASE_URL = "http://10.0.2.2:8000" // Replace with actual base URL
 
     // یک بار Retrofit بساز
     private val retrofit: Retrofit by lazy {

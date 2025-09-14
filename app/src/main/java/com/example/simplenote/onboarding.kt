@@ -41,7 +41,7 @@ fun OnboardingScreen(onGetStartedClick: () -> Unit = {}) {
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(vertical = 100.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -50,7 +50,7 @@ fun OnboardingScreen(onGetStartedClick: () -> Unit = {}) {
 
             // Illustration
             Image(
-                painter = painterResource(id = R.drawable.thinking_background), // replace with your asset
+                painter = painterResource(id = R.drawable.thinking), // replace with your asset
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
@@ -83,14 +83,12 @@ fun OnboardingScreen(onGetStartedClick: () -> Unit = {}) {
                     text = "Let’s Get Started",
                     color = Color(0xFF4A46C6)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 Icon(
                     imageVector = Icons.Default.ArrowForward,
                     contentDescription = null,
                     tint = Color(0xFF4A46C6)
                 )
             }
-//            Spacer()
         }
     }
 }

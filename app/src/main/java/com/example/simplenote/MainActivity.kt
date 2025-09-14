@@ -48,7 +48,7 @@ fun NavApp(modifier: Modifier = Modifier) {
     val notesVm: NotesViewModel = viewModel()
     val navController = rememberNavController()
 
-    var startDist = "login"
+    var startDist = "onboarding"
     if (SessionManager.isLoggedIn())
         startDist = "home"
     NavHost(navController, startDestination = startDist) {
